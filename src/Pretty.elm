@@ -8,16 +8,20 @@ module Pretty exposing
     , surround, parens, braces, brackets
     , setTag, updateTag
     -- ! new stuff 
-    , emptyv2       --todo check
-    , appendv2      --todo check
-    , stringv2      --todo check
-    , taggedStrv2   --todo check
-    , taggedDocv2   --todo check
-    , nestv2        --todo check 
-    , linev2        --todo check
-    , tightlinev2   --todo check 
-    , separatorv2   --todo check 
-    , charv2        --todo check 
+    , emptyv2           --todo check
+    , appendv2          --todo check
+    , stringv2          --todo check
+    , taggedStrv2       --todo check
+    , taggedDocv2       --todo check
+    , nestv2            --todo check 
+    , linev2            --todo check
+    , tightlinev2       --todo check 
+    , separatorv2       --todo check 
+    , charv2            --todo check 
+    , updateStrTagv2    --todo check 
+    , setStrTagv2       --todo check 
+    , updateDocTagv2    --todo check
+    , setDocTagv2       --todo check
     )
 
 {-| Wadler's Pretty printer. Use the constructor functions to build up a `Doc` and
@@ -521,6 +525,19 @@ indent spaces doc =
 
 {-| Set the tag of every string in the document.
 -}
+
+-- ! new stuff
+setStrTagv2 : t -> DocV2 tagDoc t -> DocV2 tagDoc t
+setStrTagv2 strtag =
+    updateStrTagv2 (\_ _ -> Just strtag)
+
+setDocTagv2 : t -> DocV2 t tagString -> DocV2 t tagString
+setDocTagv2 doctag = 
+    updateDocTagv2 (\_ _ -> Just doctag)
+
+-- !
+
+
 setTag : t -> Doc t -> Doc t
 setTag tag =
     updateTag (\_ _ -> Just tag)
@@ -531,6 +548,19 @@ setTag tag =
 The update function is called with the string and its current tag and should
 return a new tag for the string or `Nothing` to remove the current tag.
 -}
+
+
+-- ! new stuff 
+updateStrTagv2 : (String -> Maybe t -> Maybe t) -> DocV2 tagDoc t -> DocV2 tagDoc t
+updateStrTagv2=  
+    Internals.updateStrTagv2
+
+
+updateDocTagv2 : (String -> Maybe t -> Maybe t) -> DocV2 t tagString -> DocV2 t tagString
+updateDocTagv2=  
+    Internals.updateDocTagv2
+-- !
+
 updateTag : (String -> Maybe t -> Maybe t) -> Doc t -> Doc t
 updateTag =
     Internals.updateTag
