@@ -8,7 +8,12 @@ module Pretty exposing
     , surround, parens, braces, brackets
     , setTag, updateTag
     -- ! new stuff 
-    , emptyv2 , appendv2 ,stringv2 , taggedStrv2 ,taggedDocv2
+    , emptyv2       --todo check
+    , appendv2      --todo check
+    , stringv2      --todo check
+    , taggedStrv2   --todo check
+    , taggedDocv2   --todo check
+    , nestv2        --todo check 
     )
 
 {-| Wadler's Pretty printer. Use the constructor functions to build up a `Doc` and
@@ -55,6 +60,7 @@ lay it out to fit a page width using the `pretty` function.
 
 import Basics.Extra exposing (flip)
 import Internals exposing (..)
+import Test.Html.Selector exposing (tag)
 
 
 {-| The type of documents that can be pretty printed.
@@ -104,6 +110,13 @@ append doc1 doc2 =
 {-| Adds an indent of the given number of spaces to all line breakss in the document.
 The first line will not be indented, only subsequent nested lines will be.
 -}
+-- ! new stuff
+nestv2 : Int -> DocV2 tagDoc tagString -> DocV2 tagDoc tagString
+nestv2 depth doc =
+    NestV2 depth (\() -> doc)
+
+-- !
+
 nest : Int -> Doc t -> Doc t
 nest depth doc =
     Nest depth (\() -> doc)

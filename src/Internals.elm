@@ -180,5 +180,6 @@ type DocV2 tagDoc tagString
     | ConcatenateV2 (() -> DocV2 tagDoc tagString) (() -> DocV2 tagDoc tagString)
     --Definition of a text (this definition has 2 possibles Tags)
     | TextV2 String  (Maybe tagDoc) (Maybe tagString) 
+    | NestV2 Int (() -> DocV2 tagDoc tagString)
 
 -- ! new stuff
