@@ -17,6 +17,9 @@ type Normal t
     | NText String (() -> Normal t) (Maybe t)
     | NLine Int String (() -> Normal t)
 
+-- ! new stuff 
+type DocV2 tagDoc tagString 
+    = EmptyV2
 
 
 -- Internals -------------------------------------------------------------------

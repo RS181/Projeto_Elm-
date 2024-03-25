@@ -7,6 +7,8 @@ module Pretty exposing
     , align, nest, hang, indent
     , surround, parens, braces, brackets
     , setTag, updateTag
+    -- ! new stuff 
+    , emptyv2
     )
 
 {-| Wadler's Pretty printer. Use the constructor functions to build up a `Doc` and
@@ -75,6 +77,12 @@ empty is not the same as `string ""`.
     pretty 10 empty == ""
 
 -}
+
+-- ! new stuff
+emptyv2 : DocV2 tagDoc tagString
+emptyv2 = 
+    EmptyV2
+-- ! 
 empty : Doc t
 empty =
     Empty
