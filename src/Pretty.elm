@@ -17,6 +17,7 @@ module Pretty exposing
     , linev2        --todo check
     , tightlinev2   --todo check 
     , separatorv2   --todo check 
+    , charv2        --todo check 
     )
 
 {-| Wadler's Pretty printer. Use the constructor functions to build up a `Doc` and
@@ -174,7 +175,11 @@ taggedString val tag =
 {-| Creates a document from a character.
 -}
 
---todo add charv2
+-- ! new stuff 
+charv2 : Char -> DocV2 tagDoc tagString
+charv2 c = 
+    TextV2 (String.fromChar c) Nothing Nothing
+-- !
 
 char : Char -> Doc t
 char c =
