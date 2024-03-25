@@ -187,4 +187,30 @@ type DocV2 tagDoc tagString
     | ColumnV2 (Int -> DocV2 tagDoc tagString)
 
 
+
+
+
+-- todo only updates tagstring (CHECK IF LOGIC IS CORRECT)
+updateStrTagv2 : (String -> Maybe t -> Maybe t) -> DocV2 tagDoc t -> DocV2 tagDoc t
+updateStrTagv2 updateFn doc =
+    case doc of
+        ConcatenateV2 doc1 doc2 ->
+            ConcatenateV2 (\() -> updateStrTagv2 updateFn (doc1 ())) (\() -> updateStrTagv2 updateFn (doc2 ()))
+
+        x ->
+            x
+
+-- todo only updates tagDoc (CHECK IF LOGIC IS CORRECT)
+updateDocTagv2 : (String -> Maybe t -> Maybe t) -> DocV2 t tagString -> DocV2 t tagString
+updateDocTagv2 updateFn doc =
+    case doc of
+        ConcatenateV2 doc1 doc2 ->
+            ConcatenateV2 (\() -> updateDocTagv2 updateFn (doc1 ())) (\() -> updateDocTagv2 updateFn (doc2 ()))
+
+        x ->
+            x
+
+
+
+
 -- ! new stuff
