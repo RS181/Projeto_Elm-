@@ -196,6 +196,8 @@ updateStrTagv2 updateFn doc =
     case doc of
         ConcatenateV2 doc1 doc2 ->
             ConcatenateV2 (\() -> updateStrTagv2 updateFn (doc1 ())) (\() -> updateStrTagv2 updateFn (doc2 ()))
+        NestV2 i doc1 ->
+            NestV2 i (\() -> updateStrTagv2 updateFn (doc1 ()))        
 
         x ->
             x
@@ -206,7 +208,8 @@ updateDocTagv2 updateFn doc =
     case doc of
         ConcatenateV2 doc1 doc2 ->
             ConcatenateV2 (\() -> updateDocTagv2 updateFn (doc1 ())) (\() -> updateDocTagv2 updateFn (doc2 ()))
-
+        NestV2 i doc1 ->
+            NestV2 i (\() -> updateDocTagv2 updateFn (doc1 ()))  
         x ->
             x
 
