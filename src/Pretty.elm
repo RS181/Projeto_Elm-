@@ -8,7 +8,7 @@ module Pretty exposing
     , surround, parens, braces, brackets
     , setTag, updateTag
     -- ! new stuff 
-    , emptyv2
+    , emptyv2 , appendv2 ,stringv2
     )
 
 {-| Wadler's Pretty printer. Use the constructor functions to build up a `Doc` and
@@ -90,6 +90,12 @@ empty =
 
 {-| Appends two documents together.
 -}
+-- ! new stuff 
+appendv2 : DocV2 tagDoc tagString -> DocV2 tagDoc tagString -> DocV2 tagDoc tagString 
+appendv2 doc1 doc2 =
+    ConcatenateV2 (\() -> doc1) (\() -> doc2)
+-- !
+
 append : Doc t -> Doc t -> Doc t
 append doc1 doc2 =
     Concatenate (\() -> doc1) (\() -> doc2)
@@ -105,6 +111,13 @@ nest depth doc =
 
 {-| Creates a document from a string.
 -}
+-- ! new stuff 
+stringv2 : String -> DocV2 tagDoc tagString 
+stringv2 val =
+    TextV2 val Nothing Nothing
+
+-- !
+
 string : String -> Doc t
 string val =
     Text val Nothing

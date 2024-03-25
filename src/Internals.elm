@@ -20,7 +20,10 @@ type Normal t
 -- ! new stuff 
 type DocV2 tagDoc tagString 
     = EmptyV2
-
+    | ConcatenateV2 (() -> DocV2 tagDoc tagString) (() -> DocV2 tagDoc tagString)
+    --Definition of a text (this definition has 2 possibles Tags)
+    | TextV2 String  (Maybe tagString) (Maybe tagDoc) 
+-- ! new stuff
 
 -- Internals -------------------------------------------------------------------
 
