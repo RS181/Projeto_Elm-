@@ -181,5 +181,6 @@ type DocV2 tagDoc tagString
     --Definition of a text (this definition has 2 possibles Tags)
     | TextV2 String  (Maybe tagDoc) (Maybe tagString) 
     | NestV2 Int (() -> DocV2 tagDoc tagString)
+    | LineV2 String String
 
 -- ! new stuff

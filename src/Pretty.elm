@@ -14,6 +14,9 @@ module Pretty exposing
     , taggedStrv2   --todo check
     , taggedDocv2   --todo check
     , nestv2        --todo check 
+    , linev2        --todo check
+    , tightlinev2   --todo check 
+    , separatorv2   --todo check 
     )
 
 {-| Wadler's Pretty printer. Use the constructor functions to build up a `Doc` and
@@ -170,6 +173,9 @@ taggedString val tag =
 
 {-| Creates a document from a character.
 -}
+
+--todo add charv2
+
 char : Char -> Doc t
 char c =
     Text (String.fromChar c) Nothing
@@ -183,6 +189,12 @@ If this happens and the text after the line break is printed on the same line
 then the line break will be replaced by a space character.
 
 -}
+
+-- ! new stuff 
+linev2 : DocV2  tagDoc tagString
+linev2 = 
+    LineV2 " " ""
+-- !  
 line : Doc t
 line =
     Line " " ""
@@ -211,11 +223,25 @@ no space before it when the document is rendered on a single line. For example:
         )
 
 -}
+-- ! new stuff 
+
+tightlinev2 : DocV2 tagDoc tagString
+tightlinev2 =
+    LineV2 "" ""
+
+-- !
+
 tightline : Doc t
 tightline =
     Line "" ""
 
 
+-- ! new stuff
+separatorv2 : String -> String -> DocV2 tagDoc tagString
+separatorv2 hsep vsep =
+    LineV2 hsep vsep
+
+-- !
 separator : String -> String -> Doc t
 separator hsep vsep =
     Line hsep vsep
