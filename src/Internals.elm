@@ -182,5 +182,9 @@ type DocV2 tagDoc tagString
     | TextV2 String  (Maybe tagDoc) (Maybe tagString) 
     | NestV2 Int (() -> DocV2 tagDoc tagString)
     | LineV2 String String
+    | UnionV2 (DocV2 tagDoc tagString) (DocV2 tagDoc tagString)
+    | NestingV2 (Int -> DocV2 tagDoc tagString)
+    | ColumnV2 (Int -> DocV2 tagDoc tagString)
+
 
 -- ! new stuff
