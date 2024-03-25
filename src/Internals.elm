@@ -175,10 +175,11 @@ fits w normal =
 
 
 -- ! new stuff 
+
+--Definition of a type (this definition has 2 possibles Tags)
 type DocV2 tagDoc tagString 
     = EmptyV2
     | ConcatenateV2 (() -> DocV2 tagDoc tagString) (() -> DocV2 tagDoc tagString)
-    --Definition of a text (this definition has 2 possibles Tags)
     | TextV2 String  (Maybe tagDoc) (Maybe tagString) 
     | NestV2 Int (() -> DocV2 tagDoc tagString)
     | LineV2 String String
@@ -196,17 +197,23 @@ updateStrTagv2 updateFn doc =
     case doc of
         ConcatenateV2 doc1 doc2 ->
             ConcatenateV2 (\() -> updateStrTagv2 updateFn (doc1 ())) (\() -> updateStrTagv2 updateFn (doc2 ()))
+
         NestV2 i doc1 ->
             NestV2 i (\() -> updateStrTagv2 updateFn (doc1 ()))
+
         -- todo check this case (the idea is update only the Tagged String's)  
         TextV2 text _ maybeTagString ->
             TextV2 text (Nothing) (updateFn text maybeTagString)
+
         UnionV2 doc1 doc2 ->
             UnionV2 (updateStrTagv2 updateFn doc1) (updateStrTagv2 updateFn doc2)
+
         NestingV2 fn ->
             NestingV2 (\i -> updateStrTagv2 updateFn (fn i))
+
         ColumnV2 fn ->
             ColumnV2 (\i -> updateStrTagv2 updateFn (fn i))
+
         x ->
             x
 
@@ -216,40 +223,98 @@ updateDocTagv2 updateFn doc =
     case doc of
         ConcatenateV2 doc1 doc2 ->
             ConcatenateV2 (\() -> updateDocTagv2 updateFn (doc1 ())) (\() -> updateDocTagv2 updateFn (doc2 ()))
+
         NestV2 i doc1 ->
             NestV2 i (\() -> updateDocTagv2 updateFn (doc1 ()))  
+
         -- todo check this case (the idea is update only the Tagged Doc's)
         TextV2 text maybeDocString _  ->
             TextV2 text (updateFn text maybeDocString) (Nothing) 
+
         UnionV2 doc1 doc2 ->
             UnionV2 (updateDocTagv2 updateFn doc1) (updateDocTagv2 updateFn doc2)
+
         NestingV2 fn ->
             NestingV2 (\i -> updateDocTagv2 updateFn (fn i))
+
         ColumnV2 fn ->
             ColumnV2 (\i -> updateDocTagv2 updateFn (fn i))
+
         x ->
             x
 
 
 
 
-
+-- todo  (CHECK IF LOGIC IS CORRECT)
 flattenv2 : DocV2 tagDoc tagString -> DocV2 tagDoc tagString
 flattenv2 doc =
     case doc of
         ConcatenateV2 doc1 doc2 ->
             ConcatenateV2 (\() -> flattenv2 (doc1 ())) (\() -> flattenv2 (doc2 ()))
+
         NestV2 i doc1 ->
             NestV2 i (\() -> flattenv2 (doc1 ()))
+
         UnionV2 doc1 doc2 ->
             flattenv2 doc1
+
         LineV2 hsep _ ->
             TextV2 hsep Nothing Nothing
+
         NestingV2 fn ->
             flattenv2 (fn 0)
+
         ColumnV2 fn ->
             flattenv2 (fn 0)
+
         x ->
             x
+
+-- todo  (CHECK IF LOGIC IS CORRECT)
+
+--todo definir um novo Normal t (e modificar respetivas funções que o envolva)
+bestv2 : Int -> Int -> DocV2 tagDoc tagString -> Normal t
+bestv2 width startCol x =
+    let
+        be : Int -> Int -> List ( Int, DocV2 tagDoc tagString ) -> Normal t
+        be w k docs =
+            case docs of
+                [] ->
+                    NNil
+
+                ( i, EmptyV2 ) :: ds ->
+                    be w k ds
+
+                ( i, ConcatenateV2 doc doc2 ) :: ds ->
+                    be w k (( i, doc () ) :: ( i, doc2 () ) :: ds)
+
+                ( i, NestV2 j doc ) :: ds ->
+                    be w k (( i + j, doc () ) :: ds)
+
+--                ( i, TextV2 text Nothing maybeStrTag ) :: ds ->
+--                   NText text (\() -> be w (k + String.length text) ds) ( maybeStrTag)
+
+                ( i, LineV2 _ vsep ) :: ds ->
+                    NLine i vsep (\() -> be w (i + String.length vsep) ds)
+
+                ( i, UnionV2 doc doc2 ) :: ds ->
+                    better w
+                        k
+                        (be w k (( i, doc ) :: ds))
+                        (\() -> be w k (( i, doc2 ) :: ds))
+
+                ( i, NestingV2 fn ) :: ds ->
+                    be w k (( i, fn i ) :: ds)
+
+                ( i, ColumnV2 fn ) :: ds ->
+                    be w k (( i, fn k ) :: ds)
+
+                _ :: _ ->
+                    Debug.todo "branch '_ :: _' not implemented"
+                    
+                
+    in
+    be width startCol [ ( 0, x ) ]
 
 -- ! end
