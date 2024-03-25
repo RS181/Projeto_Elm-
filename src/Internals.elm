@@ -233,4 +233,23 @@ updateDocTagv2 updateFn doc =
 
 
 
+
+flattenv2 : DocV2 tagDoc tagString -> DocV2 tagDoc tagString
+flattenv2 doc =
+    case doc of
+        ConcatenateV2 doc1 doc2 ->
+            ConcatenateV2 (\() -> flattenv2 (doc1 ())) (\() -> flattenv2 (doc2 ()))
+        NestV2 i doc1 ->
+            NestV2 i (\() -> flattenv2 (doc1 ()))
+        UnionV2 doc1 doc2 ->
+            flattenv2 doc1
+        LineV2 hsep _ ->
+            TextV2 hsep Nothing Nothing
+        NestingV2 fn ->
+            flattenv2 (fn 0)
+        ColumnV2 fn ->
+            flattenv2 (fn 0)
+        x ->
+            x
+
 -- ! end
