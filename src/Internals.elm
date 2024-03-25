@@ -17,13 +17,6 @@ type Normal t
     | NText String (() -> Normal t) (Maybe t)
     | NLine Int String (() -> Normal t)
 
--- ! new stuff 
-type DocV2 tagDoc tagString 
-    = EmptyV2
-    | ConcatenateV2 (() -> DocV2 tagDoc tagString) (() -> DocV2 tagDoc tagString)
-    --Definition of a text (this definition has 2 possibles Tags)
-    | TextV2 String  (Maybe tagString) (Maybe tagDoc) 
--- ! new stuff
 
 -- Internals -------------------------------------------------------------------
 
@@ -179,3 +172,13 @@ fits w normal =
 
             NLine _ _ _ ->
                 True
+
+
+-- ! new stuff 
+type DocV2 tagDoc tagString 
+    = EmptyV2
+    | ConcatenateV2 (() -> DocV2 tagDoc tagString) (() -> DocV2 tagDoc tagString)
+    --Definition of a text (this definition has 2 possibles Tags)
+    | TextV2 String  (Maybe tagDoc) (Maybe tagString) 
+
+-- ! new stuff

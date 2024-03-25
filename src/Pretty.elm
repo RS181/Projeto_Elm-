@@ -8,7 +8,7 @@ module Pretty exposing
     , surround, parens, braces, brackets
     , setTag, updateTag
     -- ! new stuff 
-    , emptyv2 , appendv2 ,stringv2
+    , emptyv2 , appendv2 ,stringv2 , taggedStrv2 ,taggedDocv2
     )
 
 {-| Wadler's Pretty printer. Use the constructor functions to build up a `Doc` and
@@ -133,6 +133,23 @@ This is intended as a way of tagging strings in a Doc for the purpose of syntax
 highlighting.
 
 -}
+
+-- ! new stuff 
+
+--todo check with professor to see if it makes sense 
+
+--Tagging strings 
+taggedStrv2 : String -> tagString -> DocV2 tagDoc tagString
+taggedStrv2 val strtag = 
+    TextV2 val (Nothing) (Just strtag)
+
+--Tagging Docs
+taggedDocv2 : String -> tagDoc -> DocV2 tagDoc tagString 
+taggedDocv2 val strdoc = 
+    TextV2 val (Just strdoc) (Nothing)
+
+-- !
+
 taggedString : String -> t -> Doc t
 taggedString val tag =
     Text val (Just tag)
