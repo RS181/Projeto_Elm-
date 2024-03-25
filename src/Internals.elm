@@ -190,19 +190,27 @@ type DocV2 tagDoc tagString
 
 
 
--- todo only updates tagstring (CHECK IF LOGIC IS CORRECT)
+-- todo only updates tagstring (CHECK IF LOGIC IS CORRECT) , basicaly i just 'adjusted' the updateTag
 updateStrTagv2 : (String -> Maybe t -> Maybe t) -> DocV2 tagDoc t -> DocV2 tagDoc t
 updateStrTagv2 updateFn doc =
     case doc of
         ConcatenateV2 doc1 doc2 ->
             ConcatenateV2 (\() -> updateStrTagv2 updateFn (doc1 ())) (\() -> updateStrTagv2 updateFn (doc2 ()))
         NestV2 i doc1 ->
-            NestV2 i (\() -> updateStrTagv2 updateFn (doc1 ()))        
-
+            NestV2 i (\() -> updateStrTagv2 updateFn (doc1 ()))
+        -- todo check this case (the idea is update only the Tagged String's)  
+        TextV2 text _ maybeTagString ->
+            TextV2 text (Nothing) (updateFn text maybeTagString)
+        UnionV2 doc1 doc2 ->
+            UnionV2 (updateStrTagv2 updateFn doc1) (updateStrTagv2 updateFn doc2)
+        NestingV2 fn ->
+            NestingV2 (\i -> updateStrTagv2 updateFn (fn i))
+        ColumnV2 fn ->
+            ColumnV2 (\i -> updateStrTagv2 updateFn (fn i))
         x ->
             x
 
--- todo only updates tagDoc (CHECK IF LOGIC IS CORRECT)
+-- todo only updates tagDoc (CHECK IF LOGIC IS CORRECT) , basicaly i just 'adjusted' the updateTag
 updateDocTagv2 : (String -> Maybe t -> Maybe t) -> DocV2 t tagString -> DocV2 t tagString
 updateDocTagv2 updateFn doc =
     case doc of
@@ -210,10 +218,19 @@ updateDocTagv2 updateFn doc =
             ConcatenateV2 (\() -> updateDocTagv2 updateFn (doc1 ())) (\() -> updateDocTagv2 updateFn (doc2 ()))
         NestV2 i doc1 ->
             NestV2 i (\() -> updateDocTagv2 updateFn (doc1 ()))  
+        -- todo check this case (the idea is update only the Tagged Doc's)
+        TextV2 text maybeDocString _  ->
+            TextV2 text (updateFn text maybeDocString) (Nothing) 
+        UnionV2 doc1 doc2 ->
+            UnionV2 (updateDocTagv2 updateFn doc1) (updateDocTagv2 updateFn doc2)
+        NestingV2 fn ->
+            NestingV2 (\i -> updateDocTagv2 updateFn (fn i))
+        ColumnV2 fn ->
+            ColumnV2 (\i -> updateDocTagv2 updateFn (fn i))
         x ->
             x
 
 
 
 
--- ! new stuff
+-- ! end
