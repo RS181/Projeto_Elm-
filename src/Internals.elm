@@ -278,33 +278,35 @@ flattenv2 doc =
 
 -- todo  (CHECK IF LOGIC IS CORRECT)
 
---todo definir um novo Normal t (e modificar respetivas funções que o envolva)
-bestv2 : Int -> Int -> DocV2 tagDoc tagString -> Normal t
-bestv2 width startCol x =
+bestv2 : Int -> Int -> DocV2 tagDoc tagString -> NormalV2 tagDoc tagString
+bestv2 width startCol x = 
     let
-        be : Int -> Int -> List ( Int, DocV2 tagDoc tagString ) -> Normal t
+        be : Int -> Int -> List ( Int,DocV2 tagDoc tagString ) -> NormalV2 tagDoc tagString
         be w k docs =
             case docs of
                 [] ->
-                    NNil
+                    NNilV2
 
-                ( i, EmptyV2 ) :: ds ->
-                    be w k ds
+                (i , EmptyV2) :: ds ->
+                    be w k ds 
 
                 ( i, ConcatenateV2 doc doc2 ) :: ds ->
                     be w k (( i, doc () ) :: ( i, doc2 () ) :: ds)
-
+                
+                
                 ( i, NestV2 j doc ) :: ds ->
                     be w k (( i + j, doc () ) :: ds)
 
---                ( i, TextV2 text Nothing maybeStrTag ) :: ds ->
---                   NText text (\() -> be w (k + String.length text) ds) ( maybeStrTag)
+                --TODO verificar este caso em particular 
+                ( i, TextV2 text maybeDocTag maybeStrTag  ) :: ds ->
+                    NTextV2 text ((\() -> be w (k + String.length text) ds) ) (maybeDocTag) (maybeStrTag)
 
                 ( i, LineV2 _ vsep ) :: ds ->
-                    NLine i vsep (\() -> be w (i + String.length vsep) ds)
+                    NLineV2 i vsep (\() -> be w (i + String.length vsep) ds)
 
+                --TODO verificar este caso em particular 
                 ( i, UnionV2 doc doc2 ) :: ds ->
-                    better w
+                    betterv2 w
                         k
                         (be w k (( i, doc ) :: ds))
                         (\() -> be w k (( i, doc2 ) :: ds))
@@ -315,11 +317,30 @@ bestv2 width startCol x =
                 ( i, ColumnV2 fn ) :: ds ->
                     be w k (( i, fn k ) :: ds)
 
-                _ :: _ ->
-                    Debug.todo "branch '_ :: _' not implemented"
-                    
-                
     in
     be width startCol [ ( 0, x ) ]
 
+betterv2 : Int -> Int -> NormalV2 tagDoc tagString -> (() -> NormalV2 tagDoc tagString) -> NormalV2 tagDoc tagString
+betterv2 w k doc doc2Fn =
+    if fitsv2 (w - k) doc then
+        doc
+    else
+        doc2Fn ()
+
+fitsv2 : Int -> NormalV2 tagDoc tagString -> Bool
+fitsv2 w normal =
+    if w < 0 then
+        False
+    else
+        case normal of
+            NNilV2 ->
+                True
+
+            NTextV2 text innerNormal _ _ ->
+                fitsv2 (w - String.length text) (innerNormal ())
+
+            NLineV2 _ _ _ ->
+                True
+
+           
 -- ! end
