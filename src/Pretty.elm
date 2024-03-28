@@ -76,6 +76,8 @@ import Test.Html.Selector exposing (tag)
 type alias Doc t =
     Internals.Doc t
 
+type alias DocV2 tagDoc tagString =
+    Internals.DocV2 tagDoc tagString
 
 
 -- Document constructors -------------------------------------------------------
