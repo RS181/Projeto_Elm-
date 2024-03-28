@@ -188,6 +188,11 @@ type DocV2 tagDoc tagString
     | ColumnV2 (Int -> DocV2 tagDoc tagString)
 
 
+type NormalV2 tagDoc tagString
+    = NNilV2
+    | NTextV2 String (() -> NormalV2 tagDoc tagString) (Maybe tagDoc) (Maybe tagString)
+    | NLineV2 Int String (() -> NormalV2 tagDoc tagString)
+
 
 
 
