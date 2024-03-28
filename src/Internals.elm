@@ -276,6 +276,39 @@ flattenv2 doc =
         x ->
             x
 
+--todo (CHECK IF LOGIC IS CORRECT)
+layoutv2 : NormalV2 tagDoc tagString -> String
+layoutv2 normal =
+    let
+        layoutInner : NormalV2 tagDoc tagString -> List String -> List String
+        layoutInner normal2 acc =
+            case normal2 of
+                NNilV2 ->
+                    acc
+
+                NTextV2 text innerNormal maybeDocTag maybeStrTag  ->
+                    layoutInner (innerNormal ()) (text :: acc)
+
+                NLineV2 i sep innerNormal ->
+                    let
+                        norm =
+                            innerNormal ()
+                    in
+                    case norm of
+                        NLineV2 _ _ _ ->
+                            layoutInner (innerNormal ()) (("\n" ++ sep) :: acc)
+
+                        _ ->
+                            layoutInner (innerNormal ()) (("\n" ++ copy i " " ++ sep) :: acc)
+
+              
+    in
+    layoutInner normal []
+        |> List.reverse
+        |> String.concat
+
+
+
 -- todo  (CHECK IF LOGIC IS CORRECT)
 
 bestv2 : Int -> Int -> DocV2 tagDoc tagString -> NormalV2 tagDoc tagString
