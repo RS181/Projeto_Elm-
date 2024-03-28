@@ -22,6 +22,26 @@ module Pretty exposing
     , setStrTagv2       --todo check 
     , updateDocTagv2    --todo check
     , setDocTagv2       --todo check
+    , groupv2           --todo check
+    , columnv2          --todo check 
+    , nestingv2
+    , av2
+    , surroundv2
+    , softlinev2
+    , joinv2
+    , linesv2 
+    , separatorsv2
+    , softlinesv2
+    , wordsv2 
+    , foldv2
+    , spacev2
+    , parensv2 
+    , bracesv2 
+    , bracketsv2
+    , alignv2
+    , hangv2 
+    , indentv2
+    , prettyv2
     )
 
 {-| Wadler's Pretty printer. Use the constructor functions to build up a `Doc` and
@@ -261,6 +281,14 @@ separator hsep vsep =
 {-| Tries to fit a document on a single line, replacing line breaks with single spaces
 where possible to achieve this.
 -}
+
+-- ! new stuff
+groupv2 : DocV2 tagDoc tagString -> DocV2 tagDoc tagString
+groupv2 doc =
+    UnionV2 (flattenv2 doc) doc 
+
+-- ! 
+
 group : Doc t -> Doc t
 group doc =
     Union (flatten doc) doc
@@ -268,6 +296,13 @@ group doc =
 
 {-| Allows a document to be created from the current column position.
 -}
+
+-- ! new stuff
+columnv2 : (Int -> DocV2 tagDoc tagString) -> DocV2 tagDoc tagString
+columnv2 =
+    ColumnV2
+-- !
+
 column : (Int -> Doc t) -> Doc t
 column =
     Column
@@ -275,6 +310,12 @@ column =
 
 {-| Allows a document to be created from the current indentation degree.
 -}
+
+-- ! new stuff 
+nestingv2 : (Int -> DocV2 tagDoc tagString) -> DocV2 tagDoc tagString
+nestingv2 =
+    NestingV2
+-- !
 nesting : (Int -> Doc t) -> Doc t
 nesting =
     Nesting
@@ -294,6 +335,12 @@ Usefull when appending multiple parts together:
         |> a line
 
 -}
+-- ! new stuff 
+av2 :DocV2 tagDoc tagString -> DocV2 tagDoc tagString -> DocV2 tagDoc tagString
+av2 =
+    flip appendv2
+-- !
+
 a : Doc t -> Doc t -> Doc t
 a =
     flip append
@@ -305,6 +352,14 @@ a =
       == "\hello/"
 
 -}
+
+-- ! new stuff 
+surroundv2 : DocV2 tagDoc tagString -> DocV2 tagDoc tagString -> DocV2 tagDoc tagString -> DocV2 tagDoc tagString 
+surroundv2 left right doc =
+    appendv2 (appendv2 left doc) right
+
+-- ! 
+
 surround : Doc t -> Doc t -> Doc t -> Doc t
 surround left right doc =
     append (append left doc) right
@@ -313,6 +368,13 @@ surround left right doc =
 {-| Creates a line break that will render to a single space if the documents it
 separates can be fitted onto one line, or a line break otherwise.
 -}
+-- ! new stuff 
+softlinev2 : DocV2 tagDoc tagString
+softlinev2 = 
+    groupv2 linev2  
+
+-- !
+
 softline : Doc t
 softline =
     group line
@@ -325,6 +387,34 @@ placed together with nothing in between them. If this behaviour is intended use
 `string ""` instead of `empty`.
 
 -}
+
+-- ! new stuff 
+joinv2 : DocV2 tagDoc tagString -> List (DocV2 tagDoc tagString) -> DocV2 tagDoc tagString
+joinv2 sep docs =
+    case docs of
+        [] ->
+            emptyv2
+
+        EmptyV2 :: ds ->
+            joinv2 sep ds
+
+        d :: ds ->
+            let
+                step x rest =
+                    case x of
+                        EmptyV2 ->
+                            rest
+
+                        doc ->
+                            appendv2 sep (appendv2 doc rest)
+
+                spersed =
+                    List.foldr step emptyv2 ds
+            in
+            appendv2 d spersed
+
+-- ! 
+
 join : Doc t -> List (Doc t) -> Doc t
 join sep docs =
     case docs of
@@ -374,6 +464,13 @@ around any empties.
 See also `words`.
 
 -}
+-- ! new stuff 
+linesv2 : List ( DocV2 tagDoc tagString) ->  DocV2 tagDoc tagString
+linesv2 =
+    joinv2 linev2
+-- ! 
+
+
 lines : List (Doc t) -> Doc t
 lines =
     join line
@@ -428,6 +525,11 @@ around any empties.
 See also `words`.
 
 -}
+-- ! new stuff 
+separatorsv2 : String -> List (DocV2 tagDoc tagString) -> DocV2 tagDoc tagString
+separatorsv2 sep =
+    LineV2 sep sep |> joinv2 
+-- !
 separators : String -> List (Doc t) -> Doc t
 separators sep =
     Line sep sep |> join
@@ -439,6 +541,13 @@ Any empty docs in the list are dropped, so multiple lines will not be inserted
 around any empties.
 
 -}
+-- ! new stuff  
+softlinesv2 : List (DocV2 tagDoc tagString) -> DocV2 tagDoc tagString
+softlinesv2 =
+    joinv2 softlinev2
+
+-- !
+
 softlines : List (Doc t) -> Doc t
 softlines =
     join softline
@@ -453,6 +562,11 @@ Any empty docs in the list are dropped, so multiple spaces will not be inserted
 around any empties.
 
 -}
+-- ! new stuff
+wordsv2 : List (DocV2 tagDoc tagString) -> DocV2 tagDoc tagString
+wordsv2 =
+    joinv2 spacev2
+-- !
 words : List (Doc t) -> Doc t
 words =
     join space
@@ -463,6 +577,13 @@ words =
     fold f == List.foldl f empty
 
 -}
+-- ! new stuff 
+foldv2 : (a -> DocV2 tagDoc tagString ->DocV2 tagDoc tagString) -> List a -> DocV2 tagDoc tagString
+foldv2 f =
+    List.foldl f emptyv2
+
+-- !
+
 fold : (a -> Doc t -> Doc t) -> List a -> Doc t
 fold f =
     List.foldl f empty
@@ -470,6 +591,12 @@ fold f =
 
 {-| Creates a document consisting of a single space.
 -}
+-- ! new stuff 
+spacev2 : DocV2 tagDoc tagString
+spacev2 =
+    charv2 ' '
+-- !
+
 space : Doc t
 space =
     char ' '
@@ -477,6 +604,13 @@ space =
 
 {-| Wraps a document in parnethesese
 -}
+
+-- ! new stuff 
+parensv2 : DocV2 tagDoc tagString -> DocV2 tagDoc tagString
+parensv2 doc =
+    surroundv2 (charv2 '(') (charv2 ')') doc
+
+-- ! 
 parens : Doc t -> Doc t
 parens doc =
     surround (char '(') (char ')') doc
@@ -484,6 +618,14 @@ parens doc =
 
 {-| Wraps a document in braces.
 -}
+
+-- ! new stuff 
+bracesv2 : DocV2 tagDoc tagString -> DocV2 tagDoc tagString
+bracesv2 doc =
+    surroundv2 (charv2 '{') (charv2 '}') doc
+
+-- ! 
+
 braces : Doc t -> Doc t
 braces doc =
     surround (char '{') (char '}') doc
@@ -491,6 +633,13 @@ braces doc =
 
 {-| Wraps a document in brackets.
 -}
+
+-- ! new stuff 
+bracketsv2 : DocV2 tagDoc tagString -> DocV2 tagDoc tagString
+bracketsv2=
+    surroundv2 (charv2 '[') (charv2 ']')
+
+-- ! 
 brackets : Doc t -> Doc t
 brackets =
     surround (char '[') (char ']')
@@ -499,6 +648,17 @@ brackets =
 {-| Adds an indent of the current column position to all line breaks in the document.
 The first line will not be indented, only subsequent nested lines will be.
 -}
+-- ! new stuff 
+alignv2 : DocV2 tagDoc tagString -> DocV2 tagDoc tagString
+alignv2 doc =
+    columnv2
+        (\currentColumn ->
+            nestingv2
+                (\indentLvl -> nestv2 (currentColumn - indentLvl) doc)
+        )
+
+-- ! 
+
 align : Doc t -> Doc t
 align doc =
     column
@@ -512,6 +672,13 @@ align doc =
 a further indent of the specified number of columns.
 The first line will not be indented, only subsequent nested lines will be.
 -}
+
+-- ! new stuff 
+hangv2 : Int -> DocV2 tagDoc tagString -> DocV2 tagDoc tagString
+hangv2 spaces doc =
+    alignv2 (nestv2 spaces doc)
+
+-- ! 
 hang : Int -> Doc t -> Doc t
 hang spaces doc =
     align (nest spaces doc)
@@ -519,6 +686,14 @@ hang spaces doc =
 
 {-| Indents a whole document by a given number of spaces.
 -}
+
+-- ! new stuff 
+indentv2 : Int -> DocV2 tagDoc tagString -> DocV2 tagDoc tagString
+indentv2 spaces doc =
+    appendv2 (stringv2 (copy spaces " ")) doc
+        |> hangv2 spaces
+
+-- ! 
 indent : Int -> Doc t -> Doc t
 indent spaces doc =
     append (string (copy spaces " ")) doc
@@ -575,6 +750,13 @@ updateTag =
 {-| Pretty prints a document trying to fit it as best as possible to the specified
 column width of the page.
 -}
+
+-- ! new stuff 
+prettyv2 : Int -> DocV2 tagDoc tagString -> String
+prettyv2 w doc =
+    layoutv2 (bestv2 w 0 doc)
+-- ! 
+
 pretty : Int -> Doc t -> String
 pretty w doc =
     layout (best w 0 doc)
