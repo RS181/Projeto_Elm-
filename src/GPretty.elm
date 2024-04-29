@@ -7,7 +7,6 @@ module GPretty exposing
     , align, nest, hang, indent
     , surround, parens, braces, brackets
     , setTag, updateTag
-    , tagged , tagged_v2  --! new stuff
     )
 
 {-| Wadler's Pretty printer. Use the constructor functions to build up a `Doc` and
@@ -438,45 +437,6 @@ indent spaces doc =
         |> hang spaces
 
 
---! new stuff
-
-{-
-Dúvidas (Mandar esta duvida ao professor)
-Supostamente devemos fazer a tag no documento em vez da string 
-, mas como aplicamos essa Tag ao Documento todo ? 
-É suposto fazer algo com que esta GInternals.updateTag , mas ajustar para o tag
-dos documentos?
-
-Posso fazer um 'hack' com o seguinte:
-1) pretty do doc (recebido no argumento de tag , com um inteiro muito alto , para 
-não afetar )
-
-2) utilizar a função string no resultado do pretty (String -> Doc t)
-
-3) utilizar setTag no resultado vindo do 2
--}
-
--- TODO pedir ao professor para verificar se alguma destas funções faz o tag do documento como suposto  
--- ex: pretty 10 (tagged "exemplo" (string "teste 123"))
-tagged : t -> Doc t -> Doc t 
-tagged t doc  = setTag t (string (pretty 1000000 doc))
-
-
--- Define a função tagged que recebe uma tag e um documento e aplica a tag ao documento
-
-
-
--- ex: pretty 10 (tagged_v2 "exemplo" (string "teste 123")) 
-tagged_v2 : String -> Doc a -> Doc a
-tagged_v2 tag doc =
-    let 
-        start_tag  = surround(char '<')  (char '>') (string tag)
-        end_tag = (surround (string "</" ) (char '>')) (string tag)
-    in 
-    append (append start_tag doc) (end_tag)
-
-    
---!
 
 {-| Set the tag of every string in the document.
 -}
