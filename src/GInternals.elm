@@ -10,6 +10,9 @@ type Doc t
     | Union (Doc t) (Doc t)
     | Nesting (Int -> Doc t)
     | Column (Int -> Doc t)
+    --! new stuff
+    | MkTagged t (Doc t)
+    | MkString String
 
 
 type Normal t
@@ -21,7 +24,7 @@ type Normal t
 
 -- Internals -------------------------------------------------------------------
 
-
+-- ! Não vamos utilizar esta função 
 updateTag : (String -> Maybe t -> Maybe t) -> Doc t -> Doc t
 updateTag updateFn doc =
     case doc of
@@ -46,7 +49,7 @@ updateTag updateFn doc =
         x ->
             x
 
-
+--TODO (DÚVIDA) perguntar é necessário colocar os casos para MkString e MkTagged ??
 flatten : Doc t -> Doc t
 flatten doc =
     case doc of
@@ -145,6 +148,13 @@ best width startCol x =
 
                 ( i, Column fn ) :: ds ->
                     be w k (( i, fn k ) :: ds)
+
+                -- TODO 
+                ( _, MkTagged _ _ ) :: _ ->
+                    Debug.todo "branch '( _, MkTagged _ _ ) :: _' not implemented"
+
+                ( _, MkString _ ) :: _ ->
+                    Debug.todo "branch '( _, MkString _ ) :: _' not implemented"
     in
     be width startCol [ ( 0, x ) ]
 

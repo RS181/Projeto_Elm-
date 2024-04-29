@@ -112,10 +112,19 @@ This is intended as a way of tagging strings in a Doc for the purpose of syntax
 highlighting.
 
 -}
-taggedString : String -> t -> Doc t
-taggedString val tag =
-    Text val (Just tag)
 
+
+--! new stuff 
+
+taggedString : String -> t -> Doc t
+taggedString txt t = MkTagged t (MkString txt)
+{-
+Old definition:
+taggedString : String -> t -> Doc t
+taggedString val tag = Text val (Just tag)
+-}
+
+--! new stuff
 
 {-| Creates a document from a character.
 -}
