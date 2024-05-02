@@ -57,7 +57,7 @@ type alias Renderer t a b =
     { init : a
     --! new stuff 
     --, tagged : t -> String -> a -> a
-    , tagged : t -> Doc t  -> Doc t 
+    , tagged : t -> Doc t  -> Doc t  -> a 
     , string : String -> Doc t  -- este é necessário?
     --! new stuff 
     , untagged : String -> a -> a
@@ -69,7 +69,7 @@ type alias Renderer t a b =
 layout : Renderer t a b -> Normal t -> b
 layout handler normal =
     let
-        --TODO pedir ajuda para mudar esta definição para
+        --TODO Tenho dúvidas aqui 
         layoutInner : Normal t -> a -> a
         layoutInner normal2 acc =
             case normal2 of
