@@ -99,7 +99,7 @@ nest depth doc =
 -}
 string : String -> Doc t
 string val =
-    Text val Nothing
+    Text val 
 
 
 {-| Creates a document from a string and tags it.
@@ -130,7 +130,7 @@ taggedString val tag = Text val (Just tag)
 -}
 char : Char -> Doc t
 char c =
-    Text (String.fromChar c) Nothing
+    Text (String.fromChar c) 
 
 
 {-| Creates a hard line break. This creates a new line, with subsequent text

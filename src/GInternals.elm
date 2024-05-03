@@ -1,11 +1,18 @@
 module GInternals exposing (..)
+{-
+Changes made to Doc t 
+1) Text String (Maybe t) ==> Text String
+  ∴ String can't have a tag associated   
 
+2) Added MkTagged t (Doc t) and MkString String
+  ∴ To tag Documents and MKString 
+-}
 
 type Doc t
     = Empty
     | Concatenate (() -> Doc t) (() -> Doc t)
     | Nest Int (() -> Doc t)
-    | Text String (Maybe t)
+    | Text String  -- removed (Maybe t) from Text
     | Line String String
     | Union (Doc t) (Doc t)
     | Nesting (Int -> Doc t)
@@ -17,8 +24,10 @@ type Doc t
 
 type Normal t
     = NNil
-    | NText String (() -> Normal t) (Maybe t)
+    -- | NText String (() -> Normal t) (Maybe t)
+    | NText String (() -> Normal t)
     | NLine Int String (() -> Normal t)
+    | Ntag t ( () -> Normal t)
 
 
 
@@ -34,8 +43,8 @@ updateTag updateFn doc =
         Nest i doc1 ->
             Nest i (\() -> updateTag updateFn (doc1 ()))
 
-        Text text maybeTag ->
-            Text text (updateFn text maybeTag)
+        Text text  ->
+            Text text 
 
         Union doc1 doc2 ->
             Union (updateTag updateFn doc1) (updateTag updateFn doc2)
@@ -63,7 +72,7 @@ flatten doc =
             flatten doc1
 
         Line hsep _ ->
-            Text hsep Nothing
+            Text hsep 
 
         Nesting fn ->
             flatten (fn 0)
@@ -83,8 +92,8 @@ layout normal =
             case normal2 of
                 NNil ->
                     acc
-
-                NText text innerNormal maybeTag ->
+                -- Removed maybetag 
+                NText text innerNormal ->
                     layoutInner (innerNormal ()) (text :: acc)
 
                 NLine i sep innerNormal ->
@@ -98,6 +107,9 @@ layout normal =
 
                         _ ->
                             layoutInner (innerNormal ()) (("\n" ++ copy i " " ++ sep) :: acc)
+
+                Ntag _ _ ->
+                    Debug.todo "branch 'Ntag _ _' not implemented"
     in
     layoutInner normal []
         |> List.reverse
@@ -131,8 +143,8 @@ best width startCol x =
                 ( i, Nest j doc ) :: ds ->
                     be w k (( i + j, doc () ) :: ds)
 
-                ( i, Text text maybeTag ) :: ds ->
-                    NText text (\() -> be w (k + String.length text) ds) maybeTag
+                ( i, Text text  ) :: ds ->
+                    NText text (\() -> be w (k + String.length text) ds) 
 
                 ( i, Line _ vsep ) :: ds ->
                     NLine i vsep (\() -> be w (i + String.length vsep) ds)
@@ -177,9 +189,12 @@ fits w normal =
         case normal of
             NNil ->
                 True
-
-            NText text innerNormal _ ->
+            -- Removed tag argument
+            NText text innerNormal  ->
                 fits (w - String.length text) (innerNormal ())
 
             NLine _ _ _ ->
                 True
+
+            Ntag _ _ ->
+                Debug.todo "branch 'Ntag _ _' not implemented"

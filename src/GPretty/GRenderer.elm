@@ -14,7 +14,6 @@ forms such as HTML.
 -}
 
 import GInternals exposing (Doc(..), Normal(..))
-import GPretty exposing (string)
 
 
 
@@ -55,12 +54,9 @@ is folded left to right, which means if you accumulate intermediate results into
 -}
 type alias Renderer t a b =
     { init : a
-    --! new stuff 
-    --, tagged : t -> String -> a -> a
-    , tagged : t -> Doc t  -> Doc t  -> a 
-    , string : String -> Doc t  -- este é necessário?
-    --! new stuff 
-    , untagged : String -> a -> a
+    , tagged : t -> a -> a  -- Defined a new tag 
+    , string : String  -> a   
+    , untagged : String -> a -> a -- TODO vamos usar?
     , newline : a -> a
     , outer : a -> b
     }
@@ -69,26 +65,14 @@ type alias Renderer t a b =
 layout : Renderer t a b -> Normal t -> b
 layout handler normal =
     let
-        --TODO Tenho dúvidas aqui 
         layoutInner : Normal t -> a -> a
         layoutInner normal2 acc =
             case normal2 of
                 NNil ->
                     acc
-
-                NText text innerNormal maybeTag ->
-                    case maybeTag of
-                    --! new stuff (precisso de ajuda aqui)
-
-                    
-                        Just tag ->
-
-                            layoutInner (innerNormal ()) (handler.tagged tag text acc)
-
-                        Nothing ->
-                            layoutInner (innerNormal ()) (handler.untagged text acc)
-                    --! new stuff
-
+                -- Adjusted to not include maybetag
+                NText text innerNormal  ->  
+                    layoutInner (innerNormal()) (handler.string text)
                 NLine i sep innerNormal ->
                     let
                         norm =
@@ -108,6 +92,10 @@ layout handler normal =
                         _ ->
                             layoutInner (innerNormal ())
                                 (handler.untagged (GInternals.copy i " " ++ sep) (handler.newline acc))
+
+
+                Ntag _ _ ->
+                    Debug.todo "branch 'Ntag _ _' not implemented"
     in
     layoutInner normal handler.init
         |> handler.outer
