@@ -7,6 +7,7 @@ Changes made to Doc t
 2) Added MkTagged t (Doc t) and MkString String
   ∴ To tag Documents and MKString 
 -}
+import Debug exposing (toString)
 
 type Doc t
     = Empty
@@ -27,6 +28,7 @@ type Normal t
     -- | NText String (() -> Normal t) (Maybe t)
     | NText String (() -> Normal t)
     | NLine Int String (() -> Normal t)
+    --! new stuff
     | Ntag t ( () -> Normal t)
 
 
@@ -108,8 +110,11 @@ layout normal =
                         _ ->
                             layoutInner (innerNormal ()) (("\n" ++ copy i " " ++ sep) :: acc)
 
-                Ntag _ _ ->
-                    Debug.todo "branch 'Ntag _ _' not implemented"
+
+                --TODO Verificar  definição Ntag !!!
+                Ntag tag innerNormal ->
+             
+                    layoutInner (innerNormal ()) ( toString (tag) :: acc)
     in
     layoutInner normal []
         |> List.reverse
@@ -161,12 +166,13 @@ best width startCol x =
                 ( i, Column fn ) :: ds ->
                     be w k (( i, fn k ) :: ds)
 
-                -- TODO 
-                ( _, MkTagged _ _ ) :: _ ->
-                    Debug.todo "branch '( _, MkTagged _ _ ) :: _' not implemented"
+                -- TODO  Verificar  definição de MkTagged e MkString
+                -- NOTA: MkTagged tem definição semelhante  a Nest 
+                ( i, MkTagged tag doc ) :: ds ->
+                    Ntag tag (\() -> be w k (( i , doc ) :: ds))
 
-                ( _, MkString _ ) :: _ ->
-                    Debug.todo "branch '( _, MkString _ ) :: _' not implemented"
+                ( i, MkString text ) :: ds ->
+                    NText text (\() -> be w (k + String.length text) ds) 
     in
     be width startCol [ ( 0, x ) ]
 
@@ -195,6 +201,6 @@ fits w normal =
 
             NLine _ _ _ ->
                 True
-
-            Ntag _ _ ->
-                Debug.todo "branch 'Ntag _ _' not implemented"
+            -- TODO Verificar  definição Ntag
+            Ntag _ innerNormal ->
+                fits w (innerNormal())

@@ -70,6 +70,7 @@ layout handler normal =
             case normal2 of
                 NNil ->
                     acc
+                --TODO Verificar definição NText !!!
                 -- Adjusted to not include maybetag
                 NText text innerNormal  ->  
                     layoutInner (innerNormal()) (handler.string text)
@@ -93,9 +94,10 @@ layout handler normal =
                             layoutInner (innerNormal ())
                                 (handler.untagged (GInternals.copy i " " ++ sep) (handler.newline acc))
 
-
-                Ntag _ _ ->
-                    Debug.todo "branch 'Ntag _ _' not implemented"
+                --TODO Verificar definição NTag 
+                Ntag tag innerNormal ->
+                    layoutInner (innerNormal())
+                        (handler.tagged tag acc)
     in
     layoutInner normal handler.init
         |> handler.outer
