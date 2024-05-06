@@ -62,6 +62,17 @@ type alias Renderer t a b =
     }
 
 
+--TODO fazer exemplo simples para verificar (exemplo por tag bold para um documento)
+--Todo criar um ficheiro para testes para testar Renderer e restantes classes (no diretorio tests)
+
+--Tag que é Highlight ou não Hilight e verficar se faz a tag sobre o documnetos
+-- Interpretar a Tag como uma "div" com atributo especial 
+
+{-
+Dicas para relatoriio
+1) Exemplo sobre Renderer normal e sobre o novo renderer 
+
+-}
 layout : Renderer t a b -> Normal t -> b
 layout handler normal =
     let
@@ -70,8 +81,6 @@ layout handler normal =
             case normal2 of
                 NNil ->
                     acc
-                --TODO Verificar definição NText !!!
-                -- Adjusted to not include maybetag
                 NText text innerNormal  ->  
                     layoutInner (innerNormal()) (handler.string text)
                 NLine i sep innerNormal ->
@@ -94,7 +103,6 @@ layout handler normal =
                             layoutInner (innerNormal ())
                                 (handler.untagged (GInternals.copy i " " ++ sep) (handler.newline acc))
 
-                --TODO Verificar definição NTag 
                 Ntag tag innerNormal ->
                     layoutInner (innerNormal())
                         (handler.tagged tag acc)

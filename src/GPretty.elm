@@ -6,7 +6,7 @@ module GPretty exposing
     , group, line, tightline, softline
     , align, nest, hang, indent
     , surround, parens, braces, brackets
-    , setTag, updateTag
+    ,taggedDoc
     )
 
 {-| Wadler's Pretty printer. Use the constructor functions to build up a `Doc` and
@@ -117,12 +117,10 @@ highlighting.
 --! new stuff 
 
 taggedString : String -> t -> Doc t
-taggedString txt t = MkTagged t (MkString txt)
-{-
-Old definition:
-taggedString : String -> t -> Doc t
-taggedString val tag = Text val (Just tag)
--}
+taggedString txt t = Tagged t (Text txt)
+
+taggedDoc : Doc t -> t -> Doc t 
+taggedDoc doc t = Tagged t doc 
 
 --! new stuff
 
@@ -447,21 +445,6 @@ indent spaces doc =
 
 
 
-{-| Set the tag of every string in the document.
--}
-setTag : t -> Doc t -> Doc t
-setTag tag =
-    updateTag (\_ _ -> Just tag)
-
-
-{-| Conditionally update the tag of every string in the document.
-
-The update function is called with the string and its current tag and should
-return a new tag for the string or `Nothing` to remove the current tag.
--}
-updateTag : (String -> Maybe t -> Maybe t) -> Doc t -> Doc t
-updateTag =
-    GInternals.updateTag
 
 
 

@@ -4,7 +4,7 @@ Changes made to Doc t
 1) Text String (Maybe t) ==> Text String
   ∴ String can't have a tag associated   
 
-2) Added MkTagged t (Doc t) and MkString String
+2) Added Tagged t (Doc t) and MkString String
   ∴ To tag Documents and MKString 
 -}
 import Debug exposing (toString)
@@ -13,19 +13,17 @@ type Doc t
     = Empty
     | Concatenate (() -> Doc t) (() -> Doc t)
     | Nest Int (() -> Doc t)
-    | Text String  -- removed (Maybe t) from Text
+    | Text String  
     | Line String String
     | Union (Doc t) (Doc t)
     | Nesting (Int -> Doc t)
     | Column (Int -> Doc t)
     --! new stuff
-    | MkTagged t (Doc t)
-    | MkString String
+    | Tagged t (Doc t)  
 
 
 type Normal t
     = NNil
-    -- | NText String (() -> Normal t) (Maybe t)
     | NText String (() -> Normal t)
     | NLine Int String (() -> Normal t)
     --! new stuff
@@ -35,32 +33,11 @@ type Normal t
 
 -- Internals -------------------------------------------------------------------
 
--- ! Não vamos utilizar esta função 
-updateTag : (String -> Maybe t -> Maybe t) -> Doc t -> Doc t
-updateTag updateFn doc =
-    case doc of
-        Concatenate doc1 doc2 ->
-            Concatenate (\() -> updateTag updateFn (doc1 ())) (\() -> updateTag updateFn (doc2 ()))
 
-        Nest i doc1 ->
-            Nest i (\() -> updateTag updateFn (doc1 ()))
-
-        Text text  ->
-            Text text 
-
-        Union doc1 doc2 ->
-            Union (updateTag updateFn doc1) (updateTag updateFn doc2)
-
-        Nesting fn ->
-            Nesting (\i -> updateTag updateFn (fn i))
-
-        Column fn ->
-            Column (\i -> updateTag updateFn (fn i))
-
-        x ->
-            x
-
---TODO (DÚVIDA) perguntar é necessário colocar os casos para MkString e MkTagged ??
+{-
+Definição do paper de Philip Wadler:
+flatten operator replaces each line break (and its associated indentation) by a single space.
+-}
 flatten : Doc t -> Doc t
 flatten doc =
     case doc of
@@ -81,6 +58,12 @@ flatten doc =
 
         Column fn ->
             flatten (fn 0)
+
+        --TODO VERIFICAR ESTA DEFINIÇÃO !!!!!
+        -- flatten <| taggedDoc empty 123  (elm repl)
+        -- Empty : Doc number              (elm repl)
+        Tagged tag doc1 ->
+            flatten doc1 
 
         x ->
             x
@@ -110,8 +93,6 @@ layout normal =
                         _ ->
                             layoutInner (innerNormal ()) (("\n" ++ copy i " " ++ sep) :: acc)
 
-
-                --TODO Verificar  definição Ntag !!!
                 Ntag tag innerNormal ->
              
                     layoutInner (innerNormal ()) ( toString (tag) :: acc)
@@ -166,13 +147,9 @@ best width startCol x =
                 ( i, Column fn ) :: ds ->
                     be w k (( i, fn k ) :: ds)
 
-                -- TODO  Verificar  definição de MkTagged e MkString
-                -- NOTA: MkTagged tem definição semelhante  a Nest 
-                ( i, MkTagged tag doc ) :: ds ->
+                ( i, Tagged tag doc ) :: ds ->
                     Ntag tag (\() -> be w k (( i , doc ) :: ds))
 
-                ( i, MkString text ) :: ds ->
-                    NText text (\() -> be w (k + String.length text) ds) 
     in
     be width startCol [ ( 0, x ) ]
 
@@ -195,12 +172,9 @@ fits w normal =
         case normal of
             NNil ->
                 True
-            -- Removed tag argument
             NText text innerNormal  ->
                 fits (w - String.length text) (innerNormal ())
-
             NLine _ _ _ ->
                 True
-            -- TODO Verificar  definição Ntag
             Ntag _ innerNormal ->
                 fits w (innerNormal())
