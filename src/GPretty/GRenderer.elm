@@ -54,19 +54,16 @@ is folded left to right, which means if you accumulate intermediate results into
 -}
 type alias Renderer t a b =
     { init : a
-    , tagged : t -> a -> a  -- Defined a new tag 
-    , string : String  -> a   
-    , untagged : String -> a -> a -- TODO vamos usar?
+    --, tagged : t -> a -> a  
+    , open :  t -> a -> a 
+    , close :  t -> a -> a 
+    ,string :String -> a -> a
+    -- , string : String  -> a  
+    , untagged : String -> a -> a -- TODO vamos usar? R: Não (REMOVER !!!)
     , newline : a -> a
     , outer : a -> b
     }
 
-
---TODO fazer exemplo simples para verificar (exemplo por tag bold para um documento)
---Todo criar um ficheiro para testes para testar Renderer e restantes classes (no diretorio tests)
-
---Tag que é Highlight ou não Hilight e verficar se faz a tag sobre o documnetos
--- Interpretar a Tag como uma "div" com atributo especial 
 
 {-
 Dicas para relatoriio
@@ -82,7 +79,7 @@ layout handler normal =
                 NNil ->
                     acc
                 NText text innerNormal  ->  
-                    layoutInner (innerNormal()) (handler.string text)
+                    layoutInner (innerNormal()) (handler.string text acc)
                 NLine i sep innerNormal ->
                     let
                         norm =
@@ -103,9 +100,17 @@ layout handler normal =
                             layoutInner (innerNormal ())
                                 (handler.untagged (GInternals.copy i " " ++ sep) (handler.newline acc))
 
-                Ntag tag innerNormal ->
-                    layoutInner (innerNormal())
-                        (handler.tagged tag acc)
+
+                --TODO CONFIRMAR DEFINIÇÕES ABAIXO !!
+                
+                Nopen tag innerNormal ->
+                    layoutInner (innerNormal ()) 
+                        (handler.open tag acc)
+
+                Nclose tag innerNormal ->
+                    layoutInner (innerNormal ())
+                        (handler.close tag acc)
+                   
     in
     layoutInner normal handler.init
         |> handler.outer

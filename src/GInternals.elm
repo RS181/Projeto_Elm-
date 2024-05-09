@@ -1,13 +1,6 @@
 module GInternals exposing (..)
-{-
-Changes made to Doc t 
-1) Text String (Maybe t) ==> Text String
-  ∴ String can't have a tag associated   
-
-2) Added Tagged t (Doc t) and MkString String
-  ∴ To tag Documents and MKString 
--}
 import Debug exposing (toString)
+
 
 type Doc t
     = Empty
@@ -19,7 +12,8 @@ type Doc t
     | Nesting (Int -> Doc t)
     | Column (Int -> Doc t)
     --! new stuff
-    | Tagged t (Doc t)  
+    | Open t     
+    | Close t 
 
 
 type Normal t
@@ -27,7 +21,8 @@ type Normal t
     | NText String (() -> Normal t)
     | NLine Int String (() -> Normal t)
     --! new stuff
-    | Ntag t ( () -> Normal t)
+    | Nopen t ( () -> Normal t)
+    | Nclose t ( () -> Normal t)
 
 
 
@@ -58,13 +53,8 @@ flatten doc =
 
         Column fn ->
             flatten (fn 0)
-
-        --TODO VERIFICAR ESTA DEFINIÇÃO !!!!!
-        -- flatten <| taggedDoc empty 123  (elm repl)
-        -- Empty : Doc number              (elm repl)
-        Tagged tag doc1 ->
-            flatten doc1 
-
+   
+        --! DUVIDA : Não me parece ser necessário faltten para Open t  e Close t (CONFIRMAR )
         x ->
             x
 
@@ -77,7 +67,6 @@ layout normal =
             case normal2 of
                 NNil ->
                     acc
-                -- Removed maybetag 
                 NText text innerNormal ->
                     layoutInner (innerNormal ()) (text :: acc)
 
@@ -93,9 +82,14 @@ layout normal =
                         _ ->
                             layoutInner (innerNormal ()) (("\n" ++ copy i " " ++ sep) :: acc)
 
-                Ntag tag innerNormal ->
-             
-                    layoutInner (innerNormal ()) ( toString (tag) :: acc)
+                --TODO CONFIRMAR DEFINIÇÕES ABAIXO !!
+
+                Nopen _ innerNormal ->
+                    layoutInner (innerNormal ()) (acc)
+
+                Nclose _ innerNormal ->
+                    layoutInner (innerNormal ()) (acc)
+
     in
     layoutInner normal []
         |> List.reverse
@@ -147,8 +141,14 @@ best width startCol x =
                 ( i, Column fn ) :: ds ->
                     be w k (( i, fn k ) :: ds)
 
-                ( i, Tagged tag doc ) :: ds ->
-                    Ntag tag (\() -> be w k (( i , doc ) :: ds))
+                --TODO CONFIRMAR DEFINIÇÕES ABAIXO !!
+                --TODO definição semelhante a do Text acima (Parece-me bem )
+
+                ( i , Open tag ) :: ds ->
+                    Nopen tag (\() -> be w ( i + String.length ( toString(tag) ) )  ds )
+
+                ( i , Close tag ) :: ds ->
+                    Nclose tag (\() -> be w ( i + String.length ( toString(tag) ) )  ds )
 
     in
     be width startCol [ ( 0, x ) ]
@@ -176,5 +176,11 @@ fits w normal =
                 fits (w - String.length text) (innerNormal ())
             NLine _ _ _ ->
                 True
-            Ntag _ innerNormal ->
+
+            --TODO CONFIRMAR DEFINIÇÕES ABAIXO !!
+            --Parece-me bem 
+            Nopen _ innerNormal ->
+                fits w (innerNormal())
+
+            Nclose _ innerNormal ->
                 fits w (innerNormal())

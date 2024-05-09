@@ -1,12 +1,13 @@
 module GPretty exposing
     ( Doc
     , pretty
-    , empty, space, string, taggedString, char
+    , empty, space, string, char
     , append, a, join, lines, separators, softlines, words, fold
     , group, line, tightline, softline
     , align, nest, hang, indent
     , surround, parens, braces, brackets
-    ,taggedDoc
+    -- ,taggedDoc
+    , openTag , closeTag
     )
 
 {-| Wadler's Pretty printer. Use the constructor functions to build up a `Doc` and
@@ -116,11 +117,12 @@ highlighting.
 
 --! new stuff 
 
-taggedString : String -> t -> Doc t
-taggedString txt t = Tagged t (Text txt)
 
-taggedDoc : Doc t -> t -> Doc t 
-taggedDoc doc t = Tagged t doc 
+openTag :  t-> Doc t 
+openTag tag = Open tag
+
+closeTag : t -> Doc t 
+closeTag tag = Close tag 
 
 --! new stuff
 
