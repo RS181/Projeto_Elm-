@@ -11,7 +11,7 @@ type Doc t
     | Union (Doc t) (Doc t)
     | Nesting (Int -> Doc t)
     | Column (Int -> Doc t)
-    --! new stuff
+    -- new stuff
     | Open t     
     | Close t 
 
@@ -20,7 +20,7 @@ type Normal t
     = NNil
     | NText String (() -> Normal t)
     | NLine Int String (() -> Normal t)
-    --! new stuff
+    -- new stuff
     | Nopen t ( () -> Normal t)
     | Nclose t ( () -> Normal t)
 
@@ -53,8 +53,7 @@ flatten doc =
 
         Column fn ->
             flatten (fn 0)
-   
-        --! DUVIDA : Não me parece ser necessário faltten para Open t  e Close t (CONFIRMAR )
+
         x ->
             x
 
@@ -82,8 +81,6 @@ layout normal =
                         _ ->
                             layoutInner (innerNormal ()) (("\n" ++ copy i " " ++ sep) :: acc)
 
-                --TODO CONFIRMAR DEFINIÇÕES ABAIXO !!
-
                 Nopen _ innerNormal ->
                     layoutInner (innerNormal ()) (acc)
 
@@ -100,7 +97,6 @@ copy : Int -> String -> String
 copy i s =
     if i == 0 then
         ""
-
     else
         s ++ copy (i - 1) s
 
@@ -141,9 +137,6 @@ best width startCol x =
                 ( i, Column fn ) :: ds ->
                     be w k (( i, fn k ) :: ds)
 
-                --TODO CONFIRMAR DEFINIÇÕES ABAIXO !!
-                --TODO definição semelhante a do Text acima (Parece-me bem )
-
                 ( i , Open tag ) :: ds ->
                     Nopen tag (\() -> be w ( i + String.length ( toString(tag) ) )  ds )
 
@@ -158,7 +151,6 @@ better : Int -> Int -> Normal t -> (() -> Normal t) -> Normal t
 better w k doc doc2Fn =
     if fits (w - k) doc then
         doc
-
     else
         doc2Fn ()
 
@@ -172,13 +164,13 @@ fits w normal =
         case normal of
             NNil ->
                 True
+
             NText text innerNormal  ->
                 fits (w - String.length text) (innerNormal ())
+
             NLine _ _ _ ->
                 True
 
-            --TODO CONFIRMAR DEFINIÇÕES ABAIXO !!
-            --Parece-me bem 
             Nopen _ innerNormal ->
                 fits w (innerNormal())
 

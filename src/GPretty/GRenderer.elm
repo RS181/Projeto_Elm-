@@ -59,17 +59,12 @@ type alias Renderer t a b =
     , close :  t -> a -> a 
     ,string :String -> a -> a
     -- , string : String  -> a  
-    , untagged : String -> a -> a -- TODO vamos usar? R: Não (REMOVER !!!)
+    , untagged : String -> a -> a -- this is not needed (REMOVE)
     , newline : a -> a
     , outer : a -> b
     }
 
 
-{-
-Dicas para relatoriio
-1) Exemplo sobre Renderer normal e sobre o novo renderer 
-
--}
 layout : Renderer t a b -> Normal t -> b
 layout handler normal =
     let
@@ -100,9 +95,6 @@ layout handler normal =
                             layoutInner (innerNormal ())
                                 (handler.untagged (GInternals.copy i " " ++ sep) (handler.newline acc))
 
-
-                --TODO CONFIRMAR DEFINIÇÕES ABAIXO !!
-                
                 Nopen tag innerNormal ->
                     layoutInner (innerNormal ()) 
                         (handler.open tag acc)

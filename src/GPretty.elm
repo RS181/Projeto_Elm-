@@ -6,8 +6,7 @@ module GPretty exposing
     , group, line, tightline, softline
     , align, nest, hang, indent
     , surround, parens, braces, brackets
-    -- ,taggedDoc
-    , openTag , closeTag
+    , openTag , closeTag ,tagged
     )
 
 {-| Wadler's Pretty printer. Use the constructor functions to build up a `Doc` and
@@ -46,9 +45,9 @@ D
 @docs surround, parens, braces, brackets
 
 
-# Updating tags in documents
+#Add tags in documents
 
-@docs setTag, updateTag
+@docs tagged
 
 -}
 
@@ -103,20 +102,6 @@ string val =
     Text val 
 
 
-{-| Creates a document from a string and tags it.
-
-Later on the tag can be used to change how the string is displayed. For example
-you might tag something as a `Keyword` then use a layout handler to show keywords
-in bold, and so on.
-
-This is intended as a way of tagging strings in a Doc for the purpose of syntax
-highlighting.
-
--}
-
-
---! new stuff 
-
 
 openTag :  t-> Doc t 
 openTag tag = Open tag
@@ -124,7 +109,18 @@ openTag tag = Open tag
 closeTag : t -> Doc t 
 closeTag tag = Close tag 
 
---! new stuff
+{-| 
+
+
+Add's a tag to a given document. This way we can aply tags to a 
+whole document instead of a single String
+
+
+-}
+
+tagged : t -> Doc t  -> Doc t 
+tagged t doc = openTag t |> a doc |> a (closeTag t)
+
 
 {-| Creates a document from a character.
 -}
