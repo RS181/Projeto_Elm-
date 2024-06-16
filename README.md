@@ -43,3 +43,7 @@ call-back functions that will be used when tagged strings in the document are
 encountered, and also at line ends.
 
 This is left folded over the output using whatever accumulator type you need in order to transform the output.
+
+
+> [!NOTE]
+> This version allows the same functionality has the original , but it allows the tagging of documents as a whole instead of only tagging Strings. This changes were made to adjust to the need of having a more flexibel control of tags.To be more specific , this librabry was made to enhance the UI experience of another project named [haskelite](https://github.com/pbv/haskelite) made by Pedro Vasconcelos . 
