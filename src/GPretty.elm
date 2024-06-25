@@ -44,7 +44,7 @@ D
 @docs surround, parens, braces, brackets
 
 
-#Add tags in documents
+# Add tags in documents
 
 @docs tagged, openTag, closeTag
 

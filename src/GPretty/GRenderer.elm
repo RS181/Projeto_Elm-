@@ -41,7 +41,7 @@ is folded left to right, which means if you accumulate intermediate results into
     over the entire rendering.
 
   - Tagged and untagged string from the `Doc` are passed through the `tagged`
-    and `untagged` functions.
+    and `untagged` functions. (DEPRECATED)
 
   - When the end of a line is reached, `untagged` is invoked to update the
     accumulator. Note that you must manually add `\n` newline character here if
@@ -51,14 +51,15 @@ is folded left to right, which means if you accumulate intermediate results into
     opportunity to complete the layout, for example by adding outer HTML tags
     around in, and so on.
 
+  - The `open` and `close` functions are passed through the `tagged`, `openTag` and 
+  `closeTag` functions.  
+
 -}
 type alias Renderer t a b =
     { init : a
-    --, tagged : t -> a -> a  
     , open :  t -> a -> a 
     , close :  t -> a -> a 
     ,string :String -> a -> a
-    -- , string : String  -> a  
     , untagged : String -> a -> a -- this is not needed (REMOVE)
     , newline : a -> a
     , outer : a -> b
