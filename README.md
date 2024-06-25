@@ -1,17 +1,14 @@
-**Contacts for Support**
-- @rupertlssmith on https://elmlang.slack.com
-- @rupert on https://discourse.elm-lang.org
+**Original pretty-printer**
+- Please checkout out the original version of this library  [elm-pretty-printer]([https://pages.github.com/](https://github.com/the-sett/elm-pretty-printer))
 
 **Status**
 
-- 06-Oct-2020 - Published as version 3.0.0
+- 25-Jun-2024 - Published as version 1.0.0
 
-A type parameter has been added to `Doc` allowing `String`s in the document to
-be *tagged*. Tagged strings can then be rendered with the new `Pretty.Renderer`
-module, for syntax highlighting.
-
-The new `Pretty.Renderer` module, also makes it possible to generate non-`String`
-output formats, for example HTML.
+A new way of tagging documents has been added to this library.To add a `Tag` to 
+a `Doc` we have to use the function `tagged` (add's a opening and closing tag to
+a certain document?).It is also possible to use `openTag` and `closeTag` to only
+add a closing or opening tag.
 
 # elm-pretty-printer
 
@@ -44,6 +41,9 @@ encountered, and also at line ends.
 
 This is left folded over the output using whatever accumulator type you need in order to transform the output.
 
+# Example Renderer 
+In the file `Test.elm` you can find a definition of a `renderer` that allows the tagging of 
+documents that is close to the tagging method in HTML.
 
 > [!NOTE]
-> This version allows the same functionality has the original , but it allows the tagging of documents as a whole instead of only tagging Strings. This changes were made to adjust to the need of having a more flexibel control of tags.To be more specific , this librabry was made to enhance the UI experience of another project named [haskelite](https://github.com/pbv/haskelite) made by Pedro Vasconcelos . 
+> This version allows the same functionality has the original , but it allows the tagging of documents as a whole instead of only tagging Strings. This changes were made to adjust to the need of having a more flexibel control of tags.To be more specific , this library was made to enhance the UI experience of another project named [haskelite](https://github.com/pbv/haskelite) made by Pedro Vasconcelos . 
