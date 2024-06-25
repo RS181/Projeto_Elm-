@@ -14,7 +14,6 @@ lay it out to fit a page width using the `pretty` function.
 D
 @docs Doc
 
-
 # Pretty printing documents
 
 @docs pretty
@@ -22,7 +21,7 @@ D
 
 # Building documents from string data
 
-@docs empty, space, string, taggedString, char
+@docs empty, space, string, char
 
 
 # Joining documents together
@@ -47,7 +46,7 @@ D
 
 #Add tags in documents
 
-@docs tagged
+@docs tagged, openTag, closeTag
 
 -}
 
@@ -102,9 +101,16 @@ string val =
     Text val 
 
 
+{-| Explicitly creates a ending Tag
+
+-}
 
 openTag :  t-> Doc t 
 openTag tag = Open tag
+
+{-| Explicitly creates a ending Tag
+
+-}
 
 closeTag : t -> Doc t 
 closeTag tag = Close tag 

@@ -2,9 +2,8 @@ module Tests.Tests exposing (..)
 
 import GPretty.GRenderer exposing (..)
 import GInternals exposing (..)
-import GPretty exposing (Doc,string,append,words,openTag,tagged)
+import GPretty exposing (Doc,string,append,words,tagged)
 import Debug exposing (toString)
-import GPretty exposing (closeTag)
 
 
 
@@ -13,6 +12,7 @@ import GPretty exposing (closeTag)
 -- Define o tipo tag de negrito
 type Tag = Bold
         | Italic 
+        | Underlined
 
 
 --Documentos em tag exemplos
@@ -31,7 +31,7 @@ exemplo4 = tagged Bold (exemplo1)
 
 
 exemplo5 : Doc Tag
-exemplo5 = tagged Bold  (words ( [exemplo1,exemplo2,exemplo3,exemplo4]))
+exemplo5 = tagged Underlined  (words ( [exemplo2,exemplo3]))
 renderer : Renderer Tag String String
 renderer =
     { init = ""
@@ -49,10 +49,10 @@ renderer =
 
 runTests : List String
 runTests = 
-    -- [pretty 30 renderer exemplo1]
+    --[pretty 30 renderer exemplo1]
     --[pretty 30 renderer exemplo2] 
     --[pretty 30 renderer exemplo3]
-    -- [pretty 30 renderer exemplo4] 
+    --[pretty 30 renderer exemplo4] 
     [pretty 30 renderer exemplo5]
     -- [pretty 50 renderer exemploTag5]
 
