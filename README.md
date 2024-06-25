@@ -1,5 +1,5 @@
 **Original pretty-printer**
-- Please checkout out the original version of this library  [elm-pretty-printer]([https://pages.github.com/](https://github.com/the-sett/elm-pretty-printer))
+- Please checkout out the original version of this library  [elm-pretty-printer](https://package.elm-lang.org/packages/the-sett/elm-pretty-printer/latest/)
 
 **Status**
 
